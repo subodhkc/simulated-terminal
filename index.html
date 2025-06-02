@@ -1,3 +1,262 @@
 <!DOCTYPE html>
-<!-- Truncated for brevity: full HTML content as provided by user -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulated Terminal</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      background: black;
+      color: #0f0;
+      font-family: monospace;
+    }
+    #terminal {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      height: 100vh;
+      white-space: pre-wrap;
+    }
+    #scenarioLabel {
+      font-weight: bold;
+      padding: 5px 10px;
+      background: #111;
+      border-bottom: 1px solid #0f0;
+    }
+    #metrics {
+      width: 300px;
+      border-left: 1px solid #0f0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    #clock {
+      font-size: 14px;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px dashed #0f0;
+    }
+    #startup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      background: black;
+      padding: 20px;
+      border: 1px solid #0f0;
+      text-align: center;
+    }
+    button, select {
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px 10px;
+      font-family: monospace;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    #showMetricsBtn {
+      display: none;
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div id="startup">
+      Initializing in <span id="countdown">3</span>...<br>
+      <small>This is a simulated terminal. No real commands are executed.</small>
+    </div>
+    <div id="scenarioLabel">Scenario: Penetration Test</div>
+  </div>
+
+  <div id="metrics">
+    <button onclick="unlockPro()">🔓 Unlock Pro</button>
+    <button onclick="window.open('help.html','_blank')">Help & Info</button>
+    <button onclick="toggleFullscreen()">Toggle Fullscreen</button>
+    <button onclick="toggleTheme()">Toggle Theme</button>
+    <button onclick="hideMetrics()">Hide Panel</button>
+    <select id="scenario" onchange="changeScenario()">
+      <option value="penetration">Penetration Test</option>
+      <option value="forensic">Forensic Analysis</option>
+      <option value="soc">SOC Dashboard</option>
+      <option value="malware">Malware Detonation</option>
+    </select>
+    <select id="keepAlive">
+      <option value="0">Prevent Sleep: Continuous</option>
+      <option value="30">Prevent Sleep: 30 Minutes</option>
+      <option value="60">Prevent Sleep: 1 Hour</option>
+    </select>
+    <button onclick="resetKeepAlive()">Refresh Sleep Timer</button>
+    <h3>Live Metrics</h3>
+    <p>CPU Usage: <span id="cpu">0%</span></p>
+    <p>Memory Load: <span id="mem">0%</span></p>
+    <p>Threat Level: <span id="threat">Low</span></p>
+    <p>Active Connections: <span id="conns">0</span></p>
+    <div id="clock">00:00:00</div>
+  </div>
+  <button id="showMetricsBtn" onclick="showMetrics()">▶ Show Panel</button>
+  
+  <script>
+    const startup = document.getElementById("startup");
+    const countdown = document.getElementById("countdown");
+    const terminal = document.getElementById("terminal");
+    const clock = document.getElementById("clock");
+    const scenarioLabel = document.getElementById("scenarioLabel");
+    const showMetricsBtn = document.getElementById("showMetricsBtn");
+    const metricsPanel = document.getElementById("metrics");
+
+    let count = 3;
+    const interval = setInterval(() => {
+      count--;
+      countdown.textContent = count;
+      if (count <= 0) {
+        clearInterval(interval);
+        startup.style.display = "none";
+        startTerminal();
+        resetKeepAlive();
+      }
+    }, 1000);
+
+    setInterval(() => {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString();
+    }, 1000);
+
+    const scenarios = {
+      penetration: [
+        "[12:00:01] Initiating network scan on subnet 192.168.1.0/24 using Nmap v7.93...",
+        "[12:00:06] Found open ports: 22/tcp, 80/tcp, 443/tcp, 3306/tcp...",
+        "[12:00:10] Attempting brute-force on SSH...",
+        "[12:00:15] [SUCCESS] Credentials found: admin:letmein",
+        "[12:00:20] Deploying reverse shell payload...",
+        "[12:00:25] Connection established to remote host..."
+      ],
+      forensic: [
+        "[13:01:02] Mounting disk image from E:\\evidence\\disk1.dd...",  // Fixed backslash escaping
+        "[13:01:06] Extracting MFT records...",
+        "[13:01:11] Searching for deleted files..."
+      ],
+      soc: [
+        "[14:12:11] Traffic anomaly detected on port 8080...",
+        "[14:12:14] Alert: Multiple failed login attempts..."
+      ],
+      malware: [
+        "[15:05:00] Loaded sample.exe into sandbox...",
+        "[15:05:03] Behavior analysis started..."
+      ]
+    };
+
+    let currentIndex = 0;
+    let currentScenario = 'penetration';
+    let terminalInterval;
+    let keepAliveInterval;
+
+    function getScenarioLines() {
+      return scenarios[currentScenario] || [];
+    }
+
+    function changeScenario() {
+      const select = document.getElementById('scenario');
+      currentScenario = select.value;
+      scenarioLabel.textContent = "Scenario: " + select.options[select.selectedIndex].text;
+      currentIndex = 0;
+    }
+
+    function startTerminal() {
+      if (terminalInterval) clearInterval(terminalInterval);
+      const lines = getScenarioLines();
+      terminalInterval = setInterval(() => {
+        if (currentIndex >= lines.length) currentIndex = 0;
+        const p = document.createElement('div');
+        p.textContent = lines[currentIndex++];
+        terminal.appendChild(p);
+        terminal.scrollTop = terminal.scrollHeight;
+        if (terminal.children.length > 500) terminal.removeChild(terminal.children[1]);
+      }, 1200);
+
+      if (isProUser()) {
+        const tag = document.createElement('div');
+        tag.textContent = "🔓 Pro Access Activated";
+        tag.style.color = "#0f0";
+        terminal.appendChild(tag);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      body.style.background = body.style.background === 'black' ? '#fff' : 'black';
+      body.style.color = body.style.color === '#0f0' ? '#000' : '#0f0';
+    }
+
+    function hideMetrics() {
+      metricsPanel.style.display = 'none';
+      showMetricsBtn.style.display = 'block';
+    }
+
+    function showMetrics() {
+      metricsPanel.style.display = 'flex';
+      showMetricsBtn.style.display = 'none';
+    }
+
+    function resetKeepAlive() {
+      clearInterval(keepAliveInterval);
+      simulateActivity();
+      const minutes = parseInt(document.getElementById("keepAlive").value);
+      if (minutes > 0) {
+        keepAliveInterval = setInterval(simulateActivity, minutes * 60 * 1000);
+      } else {
+        keepAliveInterval = setInterval(simulateActivity, 30000);
+      }
+    }
+
+    function simulateActivity() {
+      window.dispatchEvent(new Event('mousemove'));
+    }
+
+    // --- Paywall Logic ---
+    function isProUser() {
+      return localStorage.getItem("isPro") === "true";
+    }
+
+    function unlockPro() {
+      const code = prompt("Enter your Pro license code:");
+      if (code === "h4ck3r-unl0ck-2024") {
+        localStorage.setItem("isPro", "true");
+        alert("Pro features unlocked! Restarting...");
+        location.reload();
+      } else {
+        alert("Invalid code.");
+      }
+    }
+
+    function enforceLimit() {
+      if (!isProUser()) {
+        setTimeout(() => {
+          alert("Free 30-minute session expired. Upgrade to unlock unlimited use.");
+          location.reload();
+        }, 30 * 60 * 1000);
+      }
+    }
+
+    // Run this after the app initializes
+    setTimeout(enforceLimit, 5000);
+  </script>
+</body>
 </html>
