@@ -113,13 +113,9 @@
       <option value="30">Prevent Sleep: 30 Minutes</option>
       <option value="60">Prevent Sleep: 1 Hour</option>
     </select>
-    <button onclick="resetKeepAlive()">Refresh Sleep Timer</button>
-    <h3>Live Metrics</h3>
-    <p>CPU Usage: <span id="cpu">0%</span></p>
-    <p>Memory Load: <span id="mem">0%</span></p>
-    <p>Threat Level: <span id="threat">Low</span></p>
-    <p>Active Connections: <span id="conns">0</span></p>
-    <div id="clock">00:00:00</div>
+    <button onclick="pauseTerminal()">⏸ Pause</button>
+<button onclick="resumeTerminal()">▶ Resume</button>
+<div id="clock">00:00:00</div>
     <div id="signature">Created by: Subodh Kc</div>
     <div id="paypal-container-KWJH8NBGZ2Y7S"></div>
   </div>
@@ -238,7 +234,20 @@ function startTerminal() {
     showMetricsBtn.style.display = 'none';
   }
 
-  function resetKeepAlive() {
+  let isPaused = false;
+
+function pauseTerminal() {
+  isPaused = true;
+  clearInterval(terminalInterval);
+}
+
+function resumeTerminal() {
+  if (!isPaused) return;
+  isPaused = false;
+  startTerminal();
+}
+
+function resetKeepAlive() {
     clearInterval(keepAliveInterval);
     simulateActivity();
     const minutes = parseInt(document.getElementById("keepAlive").value);
