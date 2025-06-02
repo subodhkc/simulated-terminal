@@ -38,6 +38,16 @@
       padding-top: 10px;
       border-top: 1px dashed #0f0;
     }
+    #signature {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+    #paypal-container-KWJH8NBGZ2Y7S {
+      margin-top: 10px;
+      background-color: #222;
+      padding: 5px;
+    }
     #startup {
       position: fixed;
       top: 50%;
@@ -66,12 +76,13 @@
       z-index: 1000;
     }
   </style>
+  <script src="https://www.paypal.com/sdk/js?client-id=BAAIw9XUx0kiClQhfjcwY7vlwLbM2i0AGp9jSUtZGPituS2RU_5ImM4nWjIjEDlKmTHE4H1n693_57FyCs&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
 </head>
 <body>
   <div id="terminal">
     <div id="startup">
-      Initializing in <span id="countdown">15</span>...<br>
-      <small>This is a simulated terminal to keep your device awake like jiggler mouse. No real commands are executed.</small>
+      Initializing in <span id="countdown">3</span>...<br>
+      <small>This is a simulated terminal. No real commands are executed.</small>
     </div>
     <div id="scenarioLabel">Scenario: Penetration Test</div>
   </div>
@@ -100,163 +111,166 @@
     <p>Threat Level: <span id="threat">Low</span></p>
     <p>Active Connections: <span id="conns">0</span></p>
     <div id="clock">00:00:00</div>
+    <div id="signature">Created by: Subodh Kc</div>
+    <div id="paypal-container-KWJH8NBGZ2Y7S"></div>
   </div>
   <button id="showMetricsBtn" onclick="showMetrics()">▶ Show Panel</button>
-  
-  <script>
-    const startup = document.getElementById("startup");
-    const countdown = document.getElementById("countdown");
-    const terminal = document.getElementById("terminal");
-    const clock = document.getElementById("clock");
-    const scenarioLabel = document.getElementById("scenarioLabel");
-    const showMetricsBtn = document.getElementById("showMetricsBtn");
-    const metricsPanel = document.getElementById("metrics");
+<script>
+  const startup = document.getElementById("startup");
+  const countdown = document.getElementById("countdown");
+  const terminal = document.getElementById("terminal");
+  const clock = document.getElementById("clock");
+  const scenarioLabel = document.getElementById("scenarioLabel");
+  const showMetricsBtn = document.getElementById("showMetricsBtn");
+  const metricsPanel = document.getElementById("metrics");
 
-    let count = 3;
-    const interval = setInterval(() => {
-      count--;
-      countdown.textContent = count;
-      if (count <= 0) {
-        clearInterval(interval);
-        startup.style.display = "none";
-        startTerminal();
-        resetKeepAlive();
-      }
-    }, 1000);
-
-    setInterval(() => {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString();
-    }, 1000);
-
-    const scenarios = {
-      penetration: [
-        "[12:00:01] Initiating network scan on subnet 192.168.1.0/24 using Nmap v7.93...",
-        "[12:00:06] Found open ports: 22/tcp, 80/tcp, 443/tcp, 3306/tcp...",
-        "[12:00:10] Attempting brute-force on SSH...",
-        "[12:00:15] [SUCCESS] Credentials found: admin:letmein",
-        "[12:00:20] Deploying reverse shell payload...",
-        "[12:00:25] Connection established to remote host..."
-      ],
-      forensic: [
-        "[13:01:02] Mounting disk image from E:\\evidence\\disk1.dd...",  // Fixed backslash escaping
-        "[13:01:06] Extracting MFT records...",
-        "[13:01:11] Searching for deleted files..."
-      ],
-      soc: [
-        "[14:12:11] Traffic anomaly detected on port 8080...",
-        "[14:12:14] Alert: Multiple failed login attempts..."
-      ],
-      malware: [
-        "[15:05:00] Loaded sample.exe into sandbox...",
-        "[15:05:03] Behavior analysis started..."
-      ]
-    };
-
-    let currentIndex = 0;
-    let currentScenario = 'penetration';
-    let terminalInterval;
-    let keepAliveInterval;
-
-    function getScenarioLines() {
-      return scenarios[currentScenario] || [];
+  let count = 3;
+  const interval = setInterval(() => {
+    count--;
+    countdown.textContent = count;
+    if (count <= 0) {
+      clearInterval(interval);
+      startup.style.display = "none";
+      startTerminal();
+      resetKeepAlive();
     }
+  }, 1000);
 
-    function changeScenario() {
-      const select = document.getElementById('scenario');
-      currentScenario = select.value;
-      scenarioLabel.textContent = "Scenario: " + select.options[select.selectedIndex].text;
-      currentIndex = 0;
+  setInterval(() => {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString();
+  }, 1000);
+
+  const scenarios = {
+    penetration: [
+      "[12:00:01] Initiating network scan on subnet 192.168.1.0/24 using Nmap...",
+      "[12:00:06] Found open ports: 22/tcp, 80/tcp, 443/tcp...",
+      "[12:00:10] Attempting brute-force on SSH...",
+      "[12:00:15] [SUCCESS] Credentials found: admin:letmein",
+      "[12:00:20] Deploying reverse shell payload...",
+      "[12:00:25] Connection established to remote host..."
+    ],
+    forensic: [
+      "[13:01:02] Mounting disk image from E:\\evidence\\disk1.dd...",
+      "[13:01:06] Extracting MFT records...",
+      "[13:01:11] Searching for deleted files..."
+    ],
+    soc: [
+      "[14:12:11] Traffic anomaly detected on port 8080...",
+      "[14:12:14] Alert: Multiple failed login attempts..."
+    ],
+    malware: [
+      "[15:05:00] Loaded sample.exe into sandbox...",
+      "[15:05:03] Behavior analysis started..."
+    ]
+  };
+
+  let currentIndex = 0;
+  let currentScenario = 'penetration';
+  let terminalInterval;
+  let keepAliveInterval;
+
+  function getScenarioLines() {
+    return scenarios[currentScenario] || [];
+  }
+
+  function changeScenario() {
+    const select = document.getElementById('scenario');
+    currentScenario = select.value;
+    scenarioLabel.textContent = "Scenario: " + select.options[select.selectedIndex].text;
+    currentIndex = 0;
+  }
+
+  function startTerminal() {
+    if (terminalInterval) clearInterval(terminalInterval);
+    const lines = getScenarioLines();
+    terminalInterval = setInterval(() => {
+      if (currentIndex >= lines.length) currentIndex = 0;
+      const p = document.createElement('div');
+      p.textContent = lines[currentIndex++];
+      terminal.appendChild(p);
+      terminal.scrollTop = terminal.scrollHeight;
+      if (terminal.children.length > 500) terminal.removeChild(terminal.children[1]);
+    }, 1200);
+
+    if (isProUser()) {
+      const tag = document.createElement('div');
+      tag.textContent = "🔓 Pro Access Activated";
+      tag.style.color = "#0f0";
+      terminal.appendChild(tag);
     }
+  }
 
-    function startTerminal() {
-      if (terminalInterval) clearInterval(terminalInterval);
-      const lines = getScenarioLines();
-      terminalInterval = setInterval(() => {
-        if (currentIndex >= lines.length) currentIndex = 0;
-        const p = document.createElement('div');
-        p.textContent = lines[currentIndex++];
-        terminal.appendChild(p);
-        terminal.scrollTop = terminal.scrollHeight;
-        if (terminal.children.length > 500) terminal.removeChild(terminal.children[1]);
-      }, 1200);
-
-      if (isProUser()) {
-        const tag = document.createElement('div');
-        tag.textContent = "🔓 Pro Access Activated";
-        tag.style.color = "#0f0";
-        terminal.appendChild(tag);
-      }
-    }
-
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
       }
     }
+  }
 
-    function toggleTheme() {
-      const body = document.body;
-      body.style.background = body.style.background === 'black' ? '#fff' : 'black';
-      body.style.color = body.style.color === '#0f0' ? '#000' : '#0f0';
+  function toggleTheme() {
+    const body = document.body;
+    body.style.background = body.style.background === 'black' ? '#fff' : 'black';
+    body.style.color = body.style.color === '#0f0' ? '#000' : '#0f0';
+  }
+
+  function hideMetrics() {
+    metricsPanel.style.display = 'none';
+    showMetricsBtn.style.display = 'block';
+  }
+
+  function showMetrics() {
+    metricsPanel.style.display = 'flex';
+    showMetricsBtn.style.display = 'none';
+  }
+
+  function resetKeepAlive() {
+    clearInterval(keepAliveInterval);
+    simulateActivity();
+    const minutes = parseInt(document.getElementById("keepAlive").value);
+    if (minutes > 0) {
+      keepAliveInterval = setInterval(simulateActivity, minutes * 60 * 1000);
+    } else {
+      keepAliveInterval = setInterval(simulateActivity, 30000);
     }
+  }
 
-    function hideMetrics() {
-      metricsPanel.style.display = 'none';
-      showMetricsBtn.style.display = 'block';
+  function simulateActivity() {
+    window.dispatchEvent(new Event('mousemove'));
+  }
+
+  function isProUser() {
+    return localStorage.getItem("isPro") === "true";
+  }
+
+  function unlockPro() {
+    const code = prompt("Enter your Pro license code:");
+    if (code === "h4ck3r-unl0ck-2024") {
+      localStorage.setItem("isPro", "true");
+      alert("Pro features unlocked! Restarting...");
+      location.reload();
+    } else {
+      alert("Invalid code.");
     }
+  }
 
-    function showMetrics() {
-      metricsPanel.style.display = 'flex';
-      showMetricsBtn.style.display = 'none';
-    }
-
-    function resetKeepAlive() {
-      clearInterval(keepAliveInterval);
-      simulateActivity();
-      const minutes = parseInt(document.getElementById("keepAlive").value);
-      if (minutes > 0) {
-        keepAliveInterval = setInterval(simulateActivity, minutes * 60 * 1000);
-      } else {
-        keepAliveInterval = setInterval(simulateActivity, 30000);
-      }
-    }
-
-    function simulateActivity() {
-      window.dispatchEvent(new Event('mousemove'));
-    }
-
-    // --- Paywall Logic ---
-    function isProUser() {
-      return localStorage.getItem("isPro") === "true";
-    }
-
-    function unlockPro() {
-      const code = prompt("Enter your Pro license code:");
-      if (code === "h4ck3r-unl0ck-2024") {
-        localStorage.setItem("isPro", "true");
-        alert("Pro features unlocked! Restarting...");
+  function enforceLimit() {
+    if (!isProUser()) {
+      setTimeout(() => {
+        alert("Free 30-minute session expired. Upgrade to unlock unlimited use.");
         location.reload();
-      } else {
-        alert("Invalid code.");
-      }
+      }, 30 * 60 * 1000);
     }
+  }
 
-    function enforceLimit() {
-      if (!isProUser()) {
-        setTimeout(() => {
-          alert("Free 30-minute session expired. Upgrade to unlock unlimited use.");
-          location.reload();
-        }, 30 * 60 * 1000);
-      }
-    }
+  setTimeout(enforceLimit, 5000);
 
-    // Run this after the app initializes
-    setTimeout(enforceLimit, 5000);
-  </script>
+  paypal.HostedButtons({
+    hostedButtonId: "KWJH8NBGZ2Y7S",
+  }).render("#paypal-container-KWJH8NBGZ2Y7S");
+</script>
 </body>
 </html>
