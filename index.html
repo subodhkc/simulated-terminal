@@ -32,6 +32,14 @@
       display: flex;
       flex-direction: column;
     }
+    #infoBox {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #0f0;
+      font-size: 12px;
+    }
     #clock {
       font-size: 14px;
       margin-top: auto;
@@ -88,6 +96,7 @@
   </div>
 
   <div id="metrics">
+    <div id="infoBox">This is a simulated terminal for fun that keeps your system awake.</div>
     <button onclick="unlockPro()">🔓 Unlock Pro</button>
     <button onclick="window.open('help.html','_blank')">Help & Info</button>
     <button onclick="toggleFullscreen()">Toggle Fullscreen</button>
@@ -151,7 +160,7 @@
       "[12:00:25] Connection established to remote host..."
     ],
     forensic: [
-      "[13:01:02] Mounting disk image from E:\\evidence\\disk1.dd...",
+      "[13:01:02] Mounting disk image from E:\evidence\disk1.dd...",
       "[13:01:06] Extracting MFT records...",
       "[13:01:11] Searching for deleted files..."
     ],
@@ -181,7 +190,9 @@
     currentIndex = 0;
   }
 
-  function startTerminal() {
+  setTimeout(() => hideMetrics(), 30000); // Auto-hide panel after 30s
+
+function startTerminal() {
     if (terminalInterval) clearInterval(terminalInterval);
     const lines = getScenarioLines();
     terminalInterval = setInterval(() => {
